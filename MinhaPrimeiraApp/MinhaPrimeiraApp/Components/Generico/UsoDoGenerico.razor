@@ -1,0 +1,50 @@
+﻿@page "/uso-generico"
+@using Bogus
+
+<TabelaGenerica Items="@Usuarios" 
+                Headers="@headers" 
+                ColumnTemplates="@columnTemplates">
+</TabelaGenerica>
+
+@code {
+    private IEnumerable<Usuario> Usuarios = Usuario.Fakers;
+
+    private List<string> headers = new List<string> { "Nome", "Idade", "Email" };
+
+    private List<Func<Usuario, object>> columnTemplates = new List<Func<Usuario, object>>
+    {
+        item => item.Nome,
+        item => item.Idade.ToString(),
+        item => item.Email
+    };
+
+    public class Usuario
+    {
+        public string Nome { get; set; }
+        public int Idade { get; set; }
+        public string Email { get; set; }
+
+        private static List<Usuario> _users;
+
+        public static List<Usuario> Fakers
+        {
+            get
+            {
+                if (_users == null) 
+                _users = List();
+                return _users; 
+            } 
+        }
+        public static List<Usuario> List()
+        {
+            int qtd = new Faker().Random.Number(20);
+            var clienteFaker = new Faker<Usuario>("pt_BR")
+                .RuleFor(c => c.Idade, f => f.Random.Int(18, 60))
+                .RuleFor(c => c.Nome, f => f.Name.FullName(Bogus.DataSets.Name.Gender.Female))
+                .RuleFor(c => c.Email, f => f.Internet.Email(f.Person.FirstName).ToLower());
+            var clientes = clienteFaker.Generate(qtd);
+                return clientes;
+        }
+        
+    }
+}
